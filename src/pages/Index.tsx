@@ -27,7 +27,7 @@ const Index = () => {
         />
         <div className="relative z-10 container mx-auto px-4 md:px-6 text-center text-white">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 animate-fade-in">
-            DINNER THAT BRINGS
+            DINNER 
             <br />
             EVERYONE TOGETHER
           </h1>
