@@ -103,3 +103,22 @@ All colors MUST be HSL.
     @apply font-semibold;
   }
 }
+/* --- Infinite seamless scroll using single image --- */
+.scroll-banner {
+  width: 200%;
+  height: 40px; /* 🔧 Adjust this for banner height */
+  background-repeat: repeat-x;
+  background-size: auto 100%; /* maintains height proportion */
+  background-position: 0 0;
+  animation: scroll-background 60s linear infinite;
+}
+
+/* Controls the seamless scroll movement */
+@keyframes scroll-background {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}

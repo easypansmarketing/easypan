@@ -5,10 +5,14 @@ import Footer from "@/components/Footer";
 import RecipeCard from "@/components/RecipeCard";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroBanner from "@/assets/hero-banner.jpg";
 import productBox from "@/assets/product-box.jpg";
 import chefAbout from "@/assets/chef-about.jpg";
 import { recipes } from "@/data/recipes";
+import heroBG from "@/assets/Hero_BG.png";
+import heroBG_M from "@/assets/Hero_BG_M.png";
+import Recipe_BG from "@/assets/Recipe_BG.png";
+import Recipe_BG_M from "@/assets/Recipe_BG_M.png";
+import roll from "@/assets/Roll_Title.png";
 
 const Index = () => {
   const featuredRecipes = recipes.slice(0, 3);
@@ -18,83 +22,67 @@ const Index = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroBanner})`,
-          }}
-        />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 text-center text-white">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 animate-fade-in">
-            DINNER 
-            <br />
-            EVERYONE TOGETHER
-          </h1>
-          <p className="text-xl md:text-3xl mb-8 md:mb-10 font-medium animate-fade-in">
-            Fast, Fresh, and Full of Flavor
-          </p>
-          <Button
-            size="lg"
-            className="bg-primary hover:bg-accent text-white font-semibold px-8 md:px-10 py-6 text-base md:text-lg animate-scale-in"
-            asChild
-          >
-            <a href="#products">
-              View Products <ArrowRight className="ml-2 h-5 w-5" />
-            </a>
-          </Button>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="py-16 md:py-24 bg-secondary">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
-              Cook fresh | Eat better | Feel happier
-            </h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
-              Every EasyPans box is designed to help you enjoy cooking real food,
-              balanced, flavorful, and prepared with love.
-            </p>
+        <section className="relative overflow-hidden text-white">
+          {/* Moving Image Banner */}
+          <div className="relative w-full overflow-hidden border-b border-gray-200 bg-white">
+            <div
+              className="scroll-banner"
+              style={{
+                backgroundImage: `url(${roll})`,
+              }}
+            ></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16">
-            <Card className="p-6 md:p-8 text-center border-2 hover:border-primary transition-colors">
-              <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-primary mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-semibold mb-2">Fresh ingredients</h3>
-              <p className="text-sm md:text-base text-muted-foreground">
-                Handpicked, farm-fresh ingredients delivered to your door
-              </p>
-            </Card>
-            <Card className="p-6 md:p-8 text-center border-2 hover:border-primary transition-colors">
-              <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-primary mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-semibold mb-2">No preservatives</h3>
-              <p className="text-sm md:text-base text-muted-foreground">
-                Pure, natural ingredients without any artificial additives
-              </p>
-            </Card>
-            <Card className="p-6 md:p-8 text-center border-2 hover:border-primary transition-colors">
-              <CheckCircle2 className="h-12 w-12 md:h-16 md:w-16 text-primary mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-semibold mb-2">Authentic taste</h3>
-              <p className="text-sm md:text-base text-muted-foreground">
-                Restaurant-quality flavors made easy at home
-              </p>
-            </Card>
+          {/* --- THIS IS YOUR ORIGINAL LAPTOP HERO VERSION --- */}
+          <div className="hidden md:block">
+
+            {/* Your original hero code is here, starting with... */}
+            <div className="relative w-full flex justify-start items-center overflow-hidden">
+              <img
+                src={heroBG}
+                alt="Hero Background"
+                className="w-full h-auto object-contain"
+              />
+              <div className="absolute" style={{ top: "67%", left: "8.2%" }}>
+                <Button
+                  className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 text-base md:text-lg rounded-lg shadow-lg"
+                  asChild
+                >
+                  <a href="#products">View Recipe</a>
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+
+          {/* --- ADD THIS NEW MOBILE HERO VERSION --- */}
+          <div className="md:hidden">
+            <div className="relative w-full flex justify-start items-center overflow-hidden">
+              <img
+                src={heroBG_M}
+                alt="Hero Background"
+                className="w-full h-auto object-contain"
+              />
+              <div className="absolute top-[30%] left-1/2 -translate-x-1/2">
+                <Button
+                  className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 text-base md:text-lg rounded-lg shadow-lg"
+                  asChild
+                >
+                  <a href="#products">View Recipe</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+
+        </section>
 
       {/* Products Section */}
-      <section id="products" className="py-16 md:py-24">
+      <section id="products" className="py-8 md:py-8">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-8">
             Say goodbye to kitchen stress
-          </h2>
-          
+          </h2>          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="order-2 md:order-1">
-              <h3 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">COOK BETTER</h3>
               <p className="text-base md:text-lg text-muted-foreground mb-6 md:mb-8">
                 With pre-measured ingredients and easy instructions, you'll spend less time
                 preparing and more time enjoying your meal. No planning. No waste. Just pure
@@ -113,16 +101,13 @@ const Index = () => {
                   <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                   <p className="text-sm md:text-base">Zero food waste with exact quantities</p>
                 </div>
-              </div>
-              <Button size="lg" className="font-semibold">
-                View Products
-              </Button>
+              </div>              
             </div>
             <div className="order-1 md:order-2">
               <img
                 src={productBox}
                 alt="EasyPans Product Box"
-                className="rounded-lg shadow-[var(--card-shadow)] w-full"
+                className="rounded-lg shadow-[var(--card-shadow)] h-80 w-4/5 mx-auto"
               />
             </div>
           </div>
@@ -161,10 +146,57 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Recipe Section */}
+        <section className="relative overflow-hidden text-white">
+
+          {/* --- THIS IS YOUR ORIGINAL LAPTOP HERO VERSION --- */}
+          {/* Add this wrapping div below */}
+          <div className="hidden md:block">
+
+            {/* Your original hero code is here, starting with... */}
+            <div className="relative w-full flex justify-start items-center overflow-hidden">
+              <img
+                src={Recipe_BG}
+                alt="Hero Background"
+                className="w-full h-auto object-contain"
+              />
+              <div className="absolute" style={{ top: "70%", left: "42.5%" }}>
+                <Button
+                  className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 text-base md:text-lg rounded-lg shadow-lg"
+                  asChild
+                >
+                  <a href="#products">View Product</a>
+                </Button>
+              </div>
+            </div>
+          </div> {/* <-- Add the closing div here */}
+
+          {/* --- ADD THIS NEW MOBILE HERO VERSION --- */}
+          <div className="md:hidden">
+            <div className="relative w-full flex justify-start items-center overflow-hidden">
+              <img
+                src={Recipe_BG_M}
+                alt="Hero Background"
+                className="w-full h-auto object-contain"
+              />
+              <div className="absolute" style={{ top: "68%", left: "29.5%" }}>
+                <Button
+                  className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-6 text-base md:text-lg rounded-lg shadow-lg"
+                  asChild
+                >
+                  <a href="#products">View Recipe</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+
+
+        </section>
+
       {/* Featured Recipes Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12 md:mb-16">
+      <section className="pt-16 md:pt-10 pb-0 md:pb-0">
+        <div className="container mx-auto px-4 md:px-40">
+          <div className="text-center mb-8 md:mb-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Featured Recipes</h2>
             <p className="text-base md:text-lg text-muted-foreground">
               Discover delicious meals you can make with EasyPans

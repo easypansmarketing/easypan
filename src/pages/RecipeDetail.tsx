@@ -1,222 +1,294 @@
-import { useState } from "react";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
+import { useState, useEffect } from "react"; // Import useEffect
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import RecipeCard from "@/components/RecipeCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Clock, Users, ChefHat, ShoppingCart, ArrowLeft } from "lucide-react";
-import { recipes } from "@/data/recipes";
+import { Clock, Users, ChefHat, Star, ArrowLeft } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+// import { recipes } from "@/data/recipes"; // REMOVED: Static data import
+import roll from "@/assets/Roll_Title.png";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Skeleton } from "@/components/ui/skeleton"; // Added for loading state
+
+// A simple star rating component to display the 5-star rating
+const StarRating = ({ rating = 5 }: { rating?: number }) => (
+  <div className="flex items-center gap-1 text-yellow-500">
+    {[...Array(5)].map((_, i) => (
+      <Star key={i} className={`h-5 w-5 ${i < rating ? 'fill-current' : ''}`} />
+    ))}
+  </div>
+);
 
 const RecipeDetail = () => {
-  const { id } = useParams();
-  const recipe = recipes.find((r) => r.id === id);
+  const { id } = useParams<{ id: string }>(); // Get ID from URL
+  const [recipe, setRecipe] = useState<any>(null); // State for the fetched recipe
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
   const [servingSize, setServingSize] = useState(4);
+  const isMobile = useIsMobile();
+  const servingSizes = [2, 4, 6, 8];
 
-  if (!recipe) {
+  // Fetch specific recipe data
+  useEffect(() => {
+    const fetchRecipe = async () => {
+      const response = await fetch(`${API_BASE_URL}/api/recipes/${id}`);
+      if (!id) return; // Don't fetch if ID is missing
+
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`http://localhost:5001/api/recipes/${id}`);
+        if (!response.ok) {
+          throw new Error("Recipe not found or failed to load");
+        }
+        const data = await response.json();
+        setRecipe(data);
+      } catch (err: any) {
+        setError(err.message || "Could not load recipe details.");
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipe();
+  }, [id]); // Re-run effect if the ID changes
+
+  // --- Loading State UI ---
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#fffbf3]">
+        <Header />
+        <main className="flex-1">
+          <Skeleton className="w-full h-64 md:h-96" />
+          <div className="container mx-auto px-4 md:px-6">
+            <Card className="p-6 md:p-10 -mt-16 md:-mt-24 relative z-10 shadow-xl max-w-5xl mx-auto border-2 border-gray-200">
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="md:col-span-2 space-y-4">
+                     <Skeleton className="h-8 w-3/4" />
+                     <Skeleton className="h-6 w-1/2" />
+                     <Skeleton className="h-4 w-full" />
+                     <Skeleton className="h-4 w-full" />
+                     <Skeleton className="h-4 w-5/6" />
+                     <Skeleton className="h-24 w-full mt-4" />
+                  </div>
+                  <div className="space-y-4">
+                     <Skeleton className="h-40 w-full" />
+                     <Skeleton className="h-10 w-full" />
+                     <Skeleton className="h-32 w-full" />
+                  </div>
+               </div>
+            </Card>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // --- Error State UI (or Recipe Not Found) ---
+  if (error || !recipe) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">Recipe Not Found</h1>
-            <Button asChild>
-              <Link to="/recipes">Back to Recipes</Link>
-            </Button>
-          </div>
+        <div className="flex-1 flex items-center justify-center text-center">
+            <div>
+                 <h1 className="text-4xl font-bold mb-4">{error ? "Error Loading Recipe" : "Recipe Not Found"}</h1>
+                 <p className="text-muted-foreground mb-4">{error || "The recipe you are looking for does not exist."}</p>
+                 <Button asChild>
+                   <Link to="/recipes">Back to Recipes</Link>
+                 </Button>
+            </div>
         </div>
         <Footer />
       </div>
     );
   }
 
-  const relatedRecipes = recipes.filter((r) => r.id !== recipe.id).slice(0, 4);
-  const servingSizes = [2, 4, 6, 8];
-
+  // --- Recipe Found - Render Details ---
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#fffbf3]">
       <Header />
 
-      <section className="py-6 md:py-8 border-b">
-        <div className="container mx-auto px-4 md:px-6">
-          <Button variant="ghost" asChild className="mb-4">
-            <Link to="/recipes">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Recipes
-            </Link>
-          </Button>
-        </div>
-      </section>
+      {/* Moving Image Banner */}
+      <div className="relative w-full overflow-hidden border-b border-gray-200 bg-white">
+        <div
+          className="scroll-banner"
+          style={{ backgroundImage: `url(${roll})` }}
+        ></div>
+      </div>
 
-      <section className="py-8 md:py-12">
+      <main className="flex-1 relative">
+        <Link 
+            to="/recipes" 
+            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/50 text-white px-4 py-2 rounded-full hover:bg-black/75 transition-colors"
+        >
+            <ArrowLeft className="h-5 w-5" />
+            <span>Back</span>
+        </Link>
+        
+        <div className="w-full h-64 md:h-96">
+            <img
+              src={recipe.image || 'https://placehold.co/1200x400/EEE/31343C?text=No+Image'} // Fallback
+              alt={recipe.title}
+              className="w-full h-full object-cover"
+            />
+        </div>
+
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-12">
-            <div>
-              <img
-                src={recipe.image}
-                alt={recipe.title}
-                className="w-full rounded-lg shadow-[var(--card-shadow)]"
-              />
-            </div>
-            
-            <div>
-              <h1 className="text-3xl md:text-5xl font-bold mb-2">{recipe.title}</h1>
-              {recipe.subtitle && (
-                <p className="text-xl md:text-2xl text-muted-foreground mb-6">{recipe.subtitle}</p>
-              )}
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 md:mb-8">
-                <Card className="p-4 text-center">
-                  <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
-                  <p className="text-sm text-muted-foreground mb-1">Serves</p>
-                  <p className="font-semibold">{recipe.serves}</p>
-                </Card>
-                <Card className="p-4 text-center">
-                  <ChefHat className="h-6 w-6 mx-auto mb-2 text-primary" />
-                  <p className="text-sm text-muted-foreground mb-1">Prep Time</p>
-                  <p className="font-semibold">{recipe.prepTime}</p>
-                </Card>
-                <Card className="p-4 text-center">
-                  <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
-                  <p className="text-sm text-muted-foreground mb-1">Cook Time</p>
-                  <p className="font-semibold">{recipe.cookTime}</p>
-                </Card>
-                {recipe.restTime && (
-                  <Card className="p-4 text-center">
-                    <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
-                    <p className="text-sm text-muted-foreground mb-1">Rest Time</p>
-                    <p className="font-semibold">{recipe.restTime}</p>
-                  </Card>
-                )}
+          <Card className="p-6 md:p-10 -mt-16 md:-mt-24 relative z-10 shadow-xl max-w-5xl mx-auto border-2 border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-2">
+                <h1 className="text-3xl md:text-4xl font-bold">{recipe.title}</h1>
+                <p className="text-lg text-muted-foreground mt-1 mb-4">{recipe.subtitle}</p>
+
+                <div className="flex items-center justify-between flex-wrap gap-4 border-b pb-4 mb-4">
+                  <StarRating />
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="text-center">
+                      <Users className="h-6 w-6 mx-auto text-primary" />
+                      <span>{recipe.serves} Serves</span>
+                    </div>
+                    <div className="text-center">
+                      <ChefHat className="h-6 w-6 mx-auto text-primary" />
+                      <span>{recipe.prepTime} Min</span>
+                    </div>
+                    <div className="text-center">
+                      <Clock className="h-6 w-6 mx-auto text-primary" />
+                      <span>{recipe.cookTime} Min</span>
+                    </div>
+                    {recipe.restTime && (
+                       <div className="text-center">
+                         <Clock className="h-6 w-6 mx-auto text-primary" />
+                         <span>{recipe.restTime}</span>
+                       </div>
+                    )}
+                  </div>
+                </div>
+
+                <p className="text-base text-muted-foreground leading-relaxed mb-8 text-justify">
+                  {recipe.description}
+                </p>
+
+                {/* Ingredients Section */}
+                <div id="ingredients" className="mb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold">Ingredients</h2>
+                    {isMobile ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button className="bg-green-600 hover:bg-green-700 text-white">
+                            Serves: {servingSize}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          {servingSizes.map((size) => (
+                            <DropdownMenuItem key={size} onSelect={() => setServingSize(size)}>
+                              {size}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Serving amount:</span>
+                        <div className="flex gap-1">
+                          {servingSizes.map((size) => (
+                            <Button
+                              key={size}
+                              variant={servingSize === size ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setServingSize(size)}
+                              className="w-8 h-8 p-0 rounded-full"
+                            >
+                              {size}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-4 text-muted-foreground">
+                    {/* Check if ingredients exist and is an array */}
+                    {recipe.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.map((category: any, idx: number) => (
+                      <div key={idx}>
+                        <h3 className="font-semibold text-foreground mb-2">{category.category}</h3>
+                        <ul className="list-disc list-inside space-y-1">
+                           {/* Check if items exist and is an array */}
+                          {category.items && Array.isArray(category.items) && category.items.map((item: string, itemIdx: number) => (
+                            <li key={itemIdx}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-8 flex items-center justify-between bg-gray-50 p-4 rounded-md">
+                     <p className="text-muted-foreground text-sm font-medium">Order the Ingredient form us</p>
+                     <Button size="lg" className="font-semibold shadow-md bg-green-600 hover:bg-green-700">
+                        Buy Now
+                     </Button>
+                  </div>
+                </div>
+
+                {/* Instructions Section */}
+                <div id="instructions">
+                  <h2 className="text-2xl font-bold mb-4">Instructions</h2>
+                  <ol className="space-y-4">
+                     {/* Check if instructions exist and is an array */}
+                    {recipe.instructions && Array.isArray(recipe.instructions) && recipe.instructions.map((instruction: string, idx: number) => (
+                      <li key={idx} className="flex gap-4">
+                        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                          {idx + 1}
+                        </span>
+                        <p className="flex-1 pt-1 text-muted-foreground">{instruction}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
               </div>
-              
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                {recipe.description}
-              </p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-            <div className="lg:col-span-2 space-y-8 md:space-y-12">
-              <Card className="p-6 md:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl md:text-3xl font-bold">Ingredients</h2>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Serves:</span>
-                    <div className="flex gap-2">
-                      {servingSizes.map((size) => (
-                        <Button
-                          key={size}
-                          variant={servingSize === size ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setServingSize(size)}
-                          className="w-10 h-10 p-0"
-                        >
-                          {size}
-                        </Button>
-                      ))}
-                    </div>
+              {/* Right Column as a sidebar */}
+              <div className="md:col-span-1">
+                <div className="sticky top-24">
+                  <img src={recipe.image} alt={recipe.title} className="w-full rounded-lg mb-6 shadow-md"/>
+                  
+                  <Button asChild size="lg" className="w-full font-semibold shadow-md mb-6">
+                    <a 
+                      href={`https://www.youtube.com/results?search_query=${recipe.title.split(' ').join('+')}+recipe`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                       Click to get Recipe Video
+                    </a>
+                  </Button>
+
+                  <h3 className="text-xl font-bold mb-4">Nutrition Values</h3>
+                  <div className="space-y-2 text-sm">
+                    {/* Check if nutrition exists and is an object */}
+                    {recipe.nutrition && typeof recipe.nutrition === 'object' && Object.entries(recipe.nutrition).map(([key, value]) => {
+                      const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                      return (
+                        <div key={key} className="flex justify-between items-center pb-2 border-b">
+                          <span className="text-muted-foreground">{formattedKey}</span>
+                          <span className="font-semibold text-foreground">{String(value)}</span> {/* Ensure value is string */}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
-                
-                <div className="space-y-6">
-                  {recipe.ingredients.map((category, idx) => (
-                    <div key={idx}>
-                      <h3 className="font-semibold text-lg mb-3">{category.category}</h3>
-                      <ul className="space-y-2">
-                        {category.items.map((item, itemIdx) => (
-                          <li key={itemIdx} className="flex items-start gap-2">
-                            <span className="text-primary mt-1.5">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-                
-                <Separator className="my-6" />
-                
-                <Button size="lg" className="w-full font-semibold">
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Buy Ingredients from EasyPans
-                </Button>
-              </Card>
-
-              <Card className="p-6 md:p-8">
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">Instructions</h2>
-                <ol className="space-y-4">
-                  {recipe.instructions.map((instruction, idx) => (
-                    <li key={idx} className="flex gap-4">
-                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                        {idx + 1}
-                      </span>
-                      <p className="flex-1 pt-1">{instruction}</p>
-                    </li>
-                  ))}
-                </ol>
-              </Card>
+              </div>
             </div>
-
-            <div>
-              <Card className="p-6 md:p-8 sticky top-24">
-                <h2 className="text-2xl font-bold mb-6">Nutrition Values</h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="font-medium">Calories</span>
-                    <span className="font-semibold text-primary">{recipe.nutrition.calories}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="font-medium">Protein</span>
-                    <span className="font-semibold">{recipe.nutrition.protein}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="font-medium">Carbohydrates</span>
-                    <span className="font-semibold">{recipe.nutrition.carbs}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="font-medium">Fat</span>
-                    <span className="font-semibold">{recipe.nutrition.fat}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <span className="font-medium">Fiber</span>
-                    <span className="font-semibold">{recipe.nutrition.fiber}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Sodium</span>
-                    <span className="font-semibold">{recipe.nutrition.sodium}</span>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
+          </Card>
         </div>
-      </section>
-
-      <section className="py-12 md:py-16 bg-secondary">
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">
-            आबरा का डाबरा - More Recipes
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-8">
-            {relatedRecipes.map((relatedRecipe) => (
-              <RecipeCard
-                key={relatedRecipe.id}
-                id={relatedRecipe.id}
-                title={relatedRecipe.title}
-                image={relatedRecipe.image}
-                cookTime={relatedRecipe.cookTime}
-                serves={relatedRecipe.serves}
-              />
-            ))}
-          </div>
-          <div className="text-center">
-            <Button size="lg" variant="outline" className="font-semibold" asChild>
-              <Link to="/recipes">View All Recipes</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      </main>
 
       <Footer />
     </div>
